@@ -13,7 +13,7 @@
 
 /* Name of the saved copy. Change the number (v1 → v2) if you ever need to
    force every phone to throw away the old copy and download fresh files. */
-const CACHE = "calc-v1";
+const CACHE = "calc-v2"; // v2: added the login (auth.js)
 
 /* Files saved on first install, so the app works offline right away. */
 const FILES = [
@@ -21,6 +21,7 @@ const FILES = [
   "./calc.htm",
   "./calc.css",
   "./calc.js",
+  "./auth.js",
   "./manifest.json",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
@@ -45,6 +46,12 @@ self.addEventListener("activate", (event) => {
 /* Fetch: runs for every file the page asks for. */
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return; // only plain downloads can be cached
+
+  // Only save our own files and Firebase's code (from www.gstatic.com).
+  // Everything else — logins, Analytics — always goes straight to the internet,
+  // so nobody's login or statistics are ever stored in the saved copy.
+  const origin = new URL(event.request.url).origin;
+  if (origin !== self.location.origin && origin !== "https://www.gstatic.com") return;
 
   event.respondWith(
     caches.open(CACHE).then(async (cache) => {

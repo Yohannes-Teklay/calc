@@ -35,13 +35,66 @@
   <link rel="apple-touch-icon" href="icons/icon-180.png">
 </head>
 <body>
-  <!-- The whole calculator. calc.js adds the class "scientific" here when scientific mode is on. -->
-  <main id="calc" class="calculator">
+  <!--
+    Three screens share this page; auth.js shows exactly one at a time:
+      1. "Loading…"     — while Firebase checks if you're already logged in
+      2. Login screen   — when nobody is logged in
+      3. The calculator — once you're logged in
+  -->
 
-    <!-- ===== Top bar: switches between Basic and Scientific mode ===== -->
+  <!-- ===== 1. Loading message (hidden by auth.js as soon as Firebase answers) ===== -->
+  <p id="loading" class="loading">Loading… (the first visit needs internet)</p>
+
+  <!-- ===== 2. Login screen ===== -->
+  <!-- auth.js switches this between three views: Log in, Create account, Reset password. -->
+  <section id="auth-screen" class="auth" hidden>
+    <h1 id="auth-title" class="auth-title">Log in</h1>
+    <p id="auth-subtitle" class="auth-subtitle">Log in to use the calculator.</p>
+
+    <form id="auth-form" class="form">
+      <!-- autocomplete lets password managers fill these in. -->
+      <label class="field">
+        <span>Email</span>
+        <input id="auth-email" type="email" autocomplete="email" required>
+      </label>
+
+      <!-- Hidden in the "Reset password" view. -->
+      <label id="password-row" class="field">
+        <span>Password</span>
+        <input id="auth-password" type="password" autocomplete="current-password" required>
+      </label>
+
+      <!-- Only shown in the "Create account" view, to catch typos. -->
+      <label id="confirm-row" class="field" hidden>
+        <span>Confirm password</span>
+        <input id="auth-confirm" type="password" autocomplete="new-password" required disabled>
+      </label>
+
+      <!-- Text changes per view: "Log in" / "Create account" / "Send reset link". -->
+      <button id="auth-submit" type="submit" class="btn btn-primary">Log in</button>
+    </form>
+
+    <!-- Errors and confirmations appear here; role="status" makes screen readers read them. -->
+    <p id="auth-message" class="message" role="status"></p>
+
+    <!-- Links to switch view. -->
+    <div class="auth-links">
+      <button id="link-forgot" type="button" class="link">Forgot password?</button>
+      <button id="link-signup" type="button" class="link">Create an account</button>
+      <button id="link-signin" type="button" class="link" hidden>Back to log in</button>
+    </div>
+  </section>
+
+  <!-- ===== 3. The calculator (hidden until you're logged in) ===== -->
+  <!-- calc.js adds the class "scientific" here when scientific mode is on. -->
+  <main id="calc" class="calculator" hidden>
+
+    <!-- ===== Top bar: mode switch on the left, account on the right ===== -->
     <div class="topbar">
       <!-- The label flips between "Scientific" and "Basic"; aria-pressed tells screen readers if it is on. -->
       <button type="button" id="mode-toggle" class="mode-toggle" data-action="mode" aria-pressed="false">Scientific</button>
+      <!-- Opens the Account window (handled by auth.js). -->
+      <button type="button" id="account-button" class="mode-toggle">Account</button>
     </div>
 
     <!-- ===== Display area ===== -->
@@ -116,7 +169,46 @@
     </div>
   </main>
 
+  <!-- ===== Account window (pops up over the calculator) ===== -->
+  <!-- <dialog> is a built-in pop-up: it dims the page behind and closes with Esc. -->
+  <dialog id="account-dialog" class="account" aria-labelledby="account-heading">
+    <h2 id="account-heading">Account</h2>
+    <p class="account-who">Logged in as <strong id="account-email"></strong></p>
+
+    <!-- Change password: needs the current password first, for safety. -->
+    <form id="password-form" class="form">
+      <h3>Change password</h3>
+      <label class="field">
+        <span>Current password</span>
+        <input id="current-password" type="password" autocomplete="current-password" required>
+      </label>
+      <label class="field">
+        <span>New password (at least 8 characters)</span>
+        <input id="new-password" type="password" autocomplete="new-password" minlength="8" required>
+      </label>
+      <label class="field">
+        <span>Confirm new password</span>
+        <input id="new-password-confirm" type="password" autocomplete="new-password" minlength="8" required>
+      </label>
+      <button id="password-submit" type="submit" class="btn btn-primary">Change password</button>
+    </form>
+
+    <!-- For people who forgot their current password. -->
+    <button id="send-reset" type="button" class="link">Forgot it? Email me a reset link</button>
+
+    <!-- Results of the actions above. -->
+    <p id="account-message" class="message" role="status"></p>
+
+    <div class="account-actions">
+      <button id="logout" type="button" class="btn btn-danger">Log out</button>
+      <button id="account-close" type="button" class="btn btn-secondary">Close</button>
+    </div>
+  </dialog>
+
   <!-- Load the logic last, so every element above already exists when it runs. -->
+  <!-- Calculator buttons and maths. -->
   <script src="calc.js"></script>
+  <!-- Login and accounts. type="module" lets it load Firebase from Google. -->
+  <script type="module" src="auth.js"></script>
 </body>
 </html>

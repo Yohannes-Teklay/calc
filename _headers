@@ -1,0 +1,46 @@
+# =====================================================================
+# Netlify security headers
+# ---------------------------------------------------------------------
+# Netlify reads this file and sends these extra instructions to the
+# browser with every page. They lock the calculator down so it can only
+# run its own files and can't be misused by other websites.
+# (Lines starting with # are comments and are ignored.)
+# =====================================================================
+
+# "/*" means: apply to every file on the site.
+/*
+  # Content Security Policy — the most important one.
+  # Only this site's own files, plus the exact Google services Firebase
+  # needs, may load or run. Everything else is blocked: injected scripts,
+  # unknown trackers, plugins, form posting and <base> tricks.
+  #   script-src  www.gstatic.com          → Firebase code
+  #               www.googletagmanager.com → Google Analytics code
+  #   connect-src identitytoolkit / securetoken.googleapis.com → logging in
+  #               firebase / firebaseinstallations.googleapis.com,
+  #               *.google-analytics.com, *.analytics.google.com → Analytics
+  #               www.gstatic.com → lets the offline script save Firebase code
+  #   frame-src   calc-c7c13.firebaseapp.com → Firebase's login helper page
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://www.gstatic.com https://www.googletagmanager.com; style-src 'self'; img-src 'self' https://*.google-analytics.com https://www.googletagmanager.com; connect-src 'self' https://www.gstatic.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firebase.googleapis.com https://firebaseinstallations.googleapis.com https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; frame-src https://calc-c7c13.firebaseapp.com; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'
+
+  # Don't let other websites show the calculator inside a frame
+  # (stops "clickjacking"). Older-browser version of frame-ancestors above.
+  X-Frame-Options: DENY
+
+  # Browsers must treat each file as the type the server says it is,
+  # never guess (stops a file being run as a script by mistake).
+  X-Content-Type-Options: nosniff
+
+  # Never tell other sites which page a visitor came from.
+  Referrer-Policy: no-referrer
+
+  # The calculator needs no camera, microphone, location, etc.,
+  # so turn them all off.
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()
+
+  # Always use the secure https:// address, for the next two years.
+  Strict-Transport-Security: max-age=63072000; includeSubDomains
+
+# The offline script must always be checked for a newer version,
+# so security fixes reach phones quickly.
+/sw.js
+  Cache-Control: no-cache

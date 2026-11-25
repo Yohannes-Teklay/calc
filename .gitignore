@@ -1,0 +1,17 @@
+# =====================================================================
+# Files git must never save or upload.
+# =====================================================================
+
+# APK signing key from PWABuilder. Anyone with it could publish a fake
+# "update" of your app — keep it private, never commit it.
+*.keystore
+*.jks
+signing-key-info.txt
+
+# The whole PWABuilder download (contains the key above) and built apps.
+*.zip
+*.apk
+*.aab
+
+# Mac system files.
+.DS_Store

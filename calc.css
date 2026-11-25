@@ -10,6 +10,9 @@
      6. Main keys
      7. Scientific-mode adjustments
      8. Button feedback (hover, press, keyboard focus)
+     9. Loading message and login screen
+    10. Forms, fields and buttons (login + Account window)
+    11. Account window
 
    Colours used:
      #000     calculator background      #1c1c1e  page background
@@ -39,6 +42,13 @@ body {
   touch-action: manipulation;      /* stop double-tap zoom on phones when tapping fast */
 }
 
+/* Anything with the HTML "hidden" attribute is really hidden, even if a
+   rule below gives it display: grid or flex. auth.js and calc.js rely on
+   this to show one screen at a time. */
+[hidden] {
+  display: none !important;
+}
+
 /* Buttons should feel like app buttons, not web page text. */
 button {
   user-select: none;                        /* don't highlight the label on long-press */
@@ -60,9 +70,10 @@ button {
 
 /* ---------- 3. Top bar (mode switch) ---------- */
 
-/* Row above the display holding the Basic/Scientific button. */
+/* Row above the display: Basic/Scientific on the left, Account on the right. */
 .topbar {
   display: flex;
+  justify-content: space-between;
   margin-bottom: 8px;
 }
 
@@ -125,12 +136,6 @@ button {
   grid-template-columns: repeat(5, 1fr);
   gap: 8px;
   margin-bottom: 12px;
-}
-
-/* "display: grid" above would override the HTML hidden attribute,
-   so this rule makes sure hidden really hides the panel. */
-.sci-keys[hidden] {
-  display: none;
 }
 
 /* A single scientific key: short dark pill. */
@@ -229,4 +234,200 @@ button {
 .mode-toggle:focus-visible {
   outline: 3px solid #0a84ff;
   outline-offset: 2px;
+}
+
+
+/* ---------- 9. Loading message and login screen ---------- */
+
+/* Grey text shown for a moment while Firebase checks the saved login. */
+.loading {
+  color: #8e8e93;
+  font-size: 17px;
+}
+
+/* The login card: same black rounded panel as the calculator. */
+.auth {
+  width: min(360px, 94vw);
+  padding: 28px 24px 20px;
+  border-radius: 24px;
+  background: #000;
+  color: #fff;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
+/* Big heading: "Log in", "Create account" or "Reset password". */
+.auth-title {
+  margin: 0 0 6px;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+/* Short grey explanation under the heading. */
+.auth-subtitle {
+  margin: 0 0 20px;
+  color: #8e8e93;
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+/* "Forgot password?" and "Create an account" links, stacked and centred. */
+.auth-links {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+
+/* ---------- 10. Forms, fields and buttons ---------- */
+
+/* A form is a single column with even spacing between fields. */
+.form {
+  display: grid;
+  gap: 14px;
+}
+
+/* Label text sits above its input box. */
+.field {
+  display: grid;
+  gap: 6px;
+  color: #8e8e93;
+  font-size: 14px;
+}
+
+/* Text boxes: dark, rounded, with white text.
+   16px text stops iPhones from zooming in when you tap a box. */
+.field input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #333;
+  border-radius: 12px;
+  background: #1f1f1f;
+  color: #fff;
+  font-size: 16px;
+}
+
+/* Orange border around the box you're typing in. */
+.field input:focus {
+  outline: none;
+  border-color: #ff9f0a;
+}
+
+/* Shared shape for the big buttons. */
+.btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 999px;
+  font-size: 17px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter 0.1s;
+}
+
+/* Main action (Log in, Change password): orange with black text for good contrast. */
+.btn-primary {
+  background: #ff9f0a;
+  color: #000;
+}
+
+/* Less important action (Close): dark grey. */
+.btn-secondary {
+  background: #333;
+  color: #fff;
+}
+
+/* Log out: dark grey with red text, so it isn't pressed by accident. */
+.btn-danger {
+  background: #333;
+  color: #ff453a;
+}
+
+/* Greyed out while "Please wait…" is showing. */
+.btn:disabled,
+.link:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+/* Same hover/press/focus feedback as the calculator keys. */
+.btn:hover:not(:disabled) { filter: brightness(1.15); }
+.btn:active:not(:disabled) { filter: brightness(1.3); }
+.btn:focus-visible,
+.link:focus-visible {
+  outline: 3px solid #0a84ff;
+  outline-offset: 2px;
+}
+
+/* Text-only buttons that look like links. */
+.link {
+  padding: 8px;
+  border: none;
+  background: none;
+  color: #ff9f0a;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+/* Feedback line under forms. Keeps its height so the page doesn't jump. */
+.message {
+  min-height: 20px;
+  margin: 12px 0 0;
+  color: #8e8e93;
+  font-size: 14px;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.message.error { color: #ff453a; }   /* red: something went wrong */
+.message.success { color: #30d158; } /* green: it worked */
+
+
+/* ---------- 11. Account window ---------- */
+
+/* The pop-up box itself. */
+.account {
+  width: min(360px, 92vw);
+  padding: 24px;
+  border: 1px solid #333;
+  border-radius: 20px;
+  background: #000;
+  color: #fff;
+}
+
+/* Dim the calculator behind the pop-up. */
+.account::backdrop {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.account h2 {
+  margin: 0 0 4px;
+  font-size: 24px;
+}
+
+.account h3 {
+  margin: 8px 0 0;
+  font-size: 17px;
+}
+
+/* "Logged in as you@example.com" in grey. */
+.account-who {
+  margin: 0 0 12px;
+  color: #8e8e93;
+  font-size: 14px;
+  overflow-wrap: anywhere; /* long emails wrap instead of overflowing */
+}
+
+/* "Forgot it?" link sits centred under the form. */
+.account > .link {
+  display: block;
+  margin: 8px auto 0;
+}
+
+/* Log out and Close side by side at the bottom. */
+.account-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 12px;
 }

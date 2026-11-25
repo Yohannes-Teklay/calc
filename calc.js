@@ -563,6 +563,12 @@ document.addEventListener("keydown", (event) => {
   const { key } = event;
   if (event.ctrlKey || event.metaKey || event.altKey) return; // leave shortcuts like Cmd+R alone
 
+  // Don't type into the calculator while it's hidden (login screen),
+  // while typing in a text box (email/password), or while the Account window is open.
+  if (calc.hidden) return;
+  if (event.target instanceof Element && event.target.closest("input, textarea")) return;
+  if (document.querySelector("dialog[open]")) return;
+
   if (/^[0-9]$/.test(key)) insert(key);
   else if (KEYMAP[key]) insert(KEYMAP[key]);
   else if (key === "Enter" || key === "=") { event.preventDefault(); equals(); } // preventDefault: Enter would also "click" the focused button
