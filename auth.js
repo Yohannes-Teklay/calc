@@ -140,10 +140,12 @@ function setBusy(button, busy) {
  */
 function friendlyError(error) {
   switch (error.code) {
+    // Firebase gives this same answer when the password is wrong AND when
+    // no account exists for that email, so the message covers both cases.
     case "auth/invalid-credential":
     case "auth/wrong-password":
     case "auth/user-not-found":
-      return "Wrong email or password.";
+      return "Wrong email or password. New here? Tap \"Create an account\" below first.";
     case "auth/invalid-email":
       return "That email address doesn't look right.";
     case "auth/missing-password":
