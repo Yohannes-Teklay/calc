@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<!--
+  Calculator — page structure
+  ===========================
+  This file only describes WHAT is on the screen.
+    • calc.css decides how it looks.
+    • calc.js  makes the buttons work.
+
+  How the buttons talk to calc.js:
+    • data-token="…"  → the text this button adds to the sum (e.g. "7", "×", "sin(").
+    • data-action="…" → a command instead of text (e.g. "clear", "equals", "mode").
+-->
+<html lang="en">
+<head>
+  <!-- Use UTF-8 so symbols like ×, ÷, √ and π display correctly. -->
+  <meta charset="UTF-8">
+
+  <!-- Make the page fit the phone screen instead of showing a zoomed-out desktop page. -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Text shown on the browser tab. -->
+  <title>Calculator</title>
+
+  <!-- Load the styles (colours, sizes, layout). -->
+  <link rel="stylesheet" href="calc.css">
+
+  <!-- App install details (name, icon, colours) used by phones and the APK builder. -->
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Colour of the phone's status bar while the app is open. -->
+  <meta name="theme-color" content="#000000">
+
+  <!-- Icons for the browser tab and for iPhone home screens. -->
+  <link rel="icon" type="image/png" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/icon-180.png">
+</head>
+<body>
+  <!-- The whole calculator. calc.js adds the class "scientific" here when scientific mode is on. -->
+  <main id="calc" class="calculator">
+
+    <!-- ===== Top bar: switches between Basic and Scientific mode ===== -->
+    <div class="topbar">
+      <!-- The label flips between "Scientific" and "Basic"; aria-pressed tells screen readers if it is on. -->
+      <button type="button" id="mode-toggle" class="mode-toggle" data-action="mode" aria-pressed="false">Scientific</button>
+    </div>
+
+    <!-- ===== Display area ===== -->
+
+    <!-- Small grey line: the finished sum after you press =, e.g. "2 × 4 =". -->
+    <div id="expression" class="expression"></div>
+
+    <!-- Big line: the sum you are typing, or the answer after =.
+         aria-live makes screen readers announce changes. -->
+    <output id="display" class="display" aria-live="polite">0</output>
+
+    <!-- Live answer: updates on every button press, e.g. "= 6" while you type "2 + 4". -->
+    <div id="preview" class="preview" aria-live="polite"></div>
+
+    <!-- ===== Scientific keys (hidden in Basic mode) ===== -->
+    <!-- The "hidden" attribute is removed by calc.js when scientific mode is switched on. -->
+    <div id="sci-keys" class="sci-keys" hidden>
+      <!-- Row 1: trigonometry and logarithms. Each one opens a bracket, e.g. "sin(". -->
+      <button type="button" class="sci-key" data-token="sin(">sin</button>
+      <button type="button" class="sci-key" data-token="cos(">cos</button>
+      <button type="button" class="sci-key" data-token="tan(">tan</button>
+      <button type="button" class="sci-key" data-token="ln(">ln</button>   <!-- natural log (base e) -->
+      <button type="button" class="sci-key" data-token="log(">log</button> <!-- log base 10 -->
+
+      <!-- Row 2: roots, powers, factorial and reciprocal. -->
+      <button type="button" class="sci-key" data-token="√(">√</button>    <!-- square root -->
+      <button type="button" class="sci-key" data-token="²">x²</button>    <!-- square the number before it -->
+      <button type="button" class="sci-key" data-token="^">xʸ</button>    <!-- x to the power of y -->
+      <button type="button" class="sci-key" data-token="!">x!</button>    <!-- factorial: 5! = 120 -->
+      <button type="button" class="sci-key" data-token="⁻¹">1/x</button>  <!-- one divided by the number -->
+
+      <!-- Row 3: brackets, constants and the angle unit switch. -->
+      <button type="button" class="sci-key" data-token="(">(</button>
+      <button type="button" class="sci-key" data-token=")">)</button>
+      <button type="button" class="sci-key" data-token="π">π</button>     <!-- 3.14159… -->
+      <button type="button" class="sci-key" data-token="e">e</button>     <!-- 2.71828… -->
+      <!-- Switches sin/cos/tan between degrees (DEG) and radians (RAD). -->
+      <button type="button" id="angle-toggle" class="sci-key angle" data-action="angle">DEG</button>
+    </div>
+
+    <!-- ===== Main keys (always visible) — a 4-column grid ===== -->
+    <div class="keys">
+      <!-- Row 1: clear everything, delete one press, percent, divide. -->
+      <button type="button" class="key function" data-action="clear">AC</button>
+      <button type="button" class="key function" data-action="backspace" aria-label="Delete">⌫</button>
+      <button type="button" class="key function" data-token="%">%</button>
+      <button type="button" class="key operator" data-token="÷">÷</button>
+
+      <!-- Row 2 -->
+      <button type="button" class="key" data-token="7">7</button>
+      <button type="button" class="key" data-token="8">8</button>
+      <button type="button" class="key" data-token="9">9</button>
+      <button type="button" class="key operator" data-token="×">×</button>
+
+      <!-- Row 3 -->
+      <button type="button" class="key" data-token="4">4</button>
+      <button type="button" class="key" data-token="5">5</button>
+      <button type="button" class="key" data-token="6">6</button>
+      <button type="button" class="key operator" data-token="−">−</button>
+
+      <!-- Row 4 -->
+      <button type="button" class="key" data-token="1">1</button>
+      <button type="button" class="key" data-token="2">2</button>
+      <button type="button" class="key" data-token="3">3</button>
+      <button type="button" class="key operator" data-token="+">+</button>
+
+      <!-- Row 5: make the number negative/positive, zero, decimal point, equals. -->
+      <button type="button" class="key" data-action="sign">±</button>
+      <button type="button" class="key" data-token="0">0</button>
+      <button type="button" class="key" data-token=".">.</button>
+      <button type="button" class="key equals" data-action="equals">=</button>
+    </div>
+  </main>
+
+  <!-- Load the logic last, so every element above already exists when it runs. -->
+  <script src="calc.js"></script>
+</body>
+</html>

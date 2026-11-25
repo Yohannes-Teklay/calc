@@ -1,0 +1,232 @@
+/* =====================================================================
+   Calculator — styles
+   ---------------------------------------------------------------------
+   Sections:
+     1. Base page setup
+     2. Calculator body
+     3. Top bar (mode switch)
+     4. Display (history line, main line, live answer)
+     5. Scientific keys
+     6. Main keys
+     7. Scientific-mode adjustments
+     8. Button feedback (hover, press, keyboard focus)
+
+   Colours used:
+     #000     calculator background      #1c1c1e  page background
+     #1f1f1f  scientific keys / toggle   #333     number keys
+     #a5a5a5  function keys (AC ⌫ %)     #ff9f0a  orange: operators, =
+     #8e8e93  grey text for secondary lines
+   ===================================================================== */
+
+
+/* ---------- 1. Base page setup ---------- */
+
+/* Width and height include padding and borders, so sizes are predictable. */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Dark page with the calculator centred both ways. */
+body {
+  margin: 0;
+  min-height: 100vh;               /* fill the full screen height */
+  display: grid;
+  place-items: center;             /* centre horizontally and vertically */
+  background: #1c1c1e;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  touch-action: manipulation;      /* stop double-tap zoom on phones when tapping fast */
+}
+
+/* Buttons should feel like app buttons, not web page text. */
+button {
+  user-select: none;                        /* don't highlight the label on long-press */
+  -webkit-tap-highlight-color: transparent; /* no blue flash when tapped on mobile */
+}
+
+
+/* ---------- 2. Calculator body ---------- */
+
+/* The black rounded panel that holds everything. */
+.calculator {
+  width: min(360px, 94vw);        /* 360px on desktop, almost full width on phones */
+  padding: 16px 20px 20px;
+  border-radius: 24px;
+  background: #000;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
+
+/* ---------- 3. Top bar (mode switch) ---------- */
+
+/* Row above the display holding the Basic/Scientific button. */
+.topbar {
+  display: flex;
+  margin-bottom: 8px;
+}
+
+/* Small pill-shaped button with orange text. */
+.mode-toggle {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 999px;           /* fully rounded ends */
+  background: #1f1f1f;
+  color: #ff9f0a;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+
+/* ---------- 4. Display ---------- */
+
+/* Grey history line, e.g. "2 × 4 =". Keeps its height even when empty
+   so the layout doesn't jump. */
+.expression {
+  min-height: 28px;
+  padding: 0 8px;
+  color: #8e8e93;
+  font-size: 22px;
+  text-align: right;
+  overflow-wrap: anywhere;        /* long sums wrap instead of overflowing */
+}
+
+/* Big white line with the sum being typed, or the answer.
+   calc.js shrinks the font size as the text gets longer. */
+.display {
+  display: block;
+  min-height: 80px;
+  padding: 0 8px;
+  color: #fff;
+  font-size: 56px;
+  font-weight: 300;               /* thin digits, like a phone calculator */
+  line-height: 1.15;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+/* Live answer under the sum, e.g. "= 6". Always reserves its height
+   so the keys don't move when it appears or disappears. */
+.preview {
+  min-height: 34px;
+  padding: 0 8px 10px;
+  color: #8e8e93;
+  font-size: 24px;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+
+/* ---------- 5. Scientific keys ---------- */
+
+/* Five equal columns of smaller keys above the main keypad. */
+.sci-keys {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+/* "display: grid" above would override the HTML hidden attribute,
+   so this rule makes sure hidden really hides the panel. */
+.sci-keys[hidden] {
+  display: none;
+}
+
+/* A single scientific key: short dark pill. */
+.sci-key {
+  height: 44px;
+  border: none;
+  border-radius: 999px;
+  background: #1f1f1f;
+  color: #fff;
+  font-size: 17px;
+  cursor: pointer;
+}
+
+/* The DEG/RAD key is a setting, not a maths key, so it is orange and bold. */
+.sci-key.angle {
+  color: #ff9f0a;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+
+/* ---------- 6. Main keys ---------- */
+
+/* Four equal columns: digits on the left, operators on the right. */
+.keys {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+/* Default key: round dark-grey circle (used for digits, ±, and .). */
+.key {
+  aspect-ratio: 1;                /* as tall as it is wide → a circle */
+  border: none;
+  border-radius: 50%;
+  background: #333;
+  color: #fff;
+  font-size: 28px;
+  cursor: pointer;
+}
+
+/* Light-grey keys with black text: AC, ⌫ and %. */
+.function {
+  background: #a5a5a5;
+  color: #000;
+}
+
+/* Orange keys: ÷ × − + and =. */
+.operator,
+.equals {
+  background: #ff9f0a;
+}
+
+
+/* ---------- 7. Scientific-mode adjustments ---------- */
+
+/* With the extra rows showing, the main keys get shorter (wide pills
+   instead of circles) so the whole calculator still fits on a phone. */
+.scientific .keys {
+  gap: 10px;
+}
+
+.scientific .key {
+  aspect-ratio: 1.35;             /* wider than tall */
+  border-radius: 999px;
+  font-size: 24px;
+}
+
+
+/* ---------- 8. Button feedback ---------- */
+
+/* Smoothly animate the brightness change below. */
+.key,
+.sci-key,
+.mode-toggle {
+  transition: filter 0.1s;
+}
+
+/* Slightly brighter when the mouse is over a button. */
+.key:hover,
+.sci-key:hover,
+.mode-toggle:hover {
+  filter: brightness(1.2);
+}
+
+/* Even brighter while pressed, so every tap is visible. */
+.key:active,
+.sci-key:active,
+.mode-toggle:active {
+  filter: brightness(1.5);
+}
+
+/* Blue ring when a button is selected with the Tab key (keyboard users). */
+.key:focus-visible,
+.sci-key:focus-visible,
+.mode-toggle:focus-visible {
+  outline: 3px solid #0a84ff;
+  outline-offset: 2px;
+}
